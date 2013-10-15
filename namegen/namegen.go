@@ -1,19 +1,16 @@
 package namegen
 
-
 import (
+	"bufio"
 	"fmt"
 	"io"
-	"bufio"
 	"math/rand"
 )
 
-
 type Markov struct {
 	depth int
-	dict map[string][]rune
+	dict  map[string][]rune
 }
-
 
 func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 	if depth < 2 {
@@ -31,7 +28,7 @@ func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 			return
 		}
 		name := []rune(line)
-		for _, r := range(name) {
+		for _, r := range name {
 			// Append r to the list of possible characters following prefix
 			rest, ok := dict[string(prefix)]
 			if !ok {
@@ -43,10 +40,10 @@ func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 				prefix = append(prefix, r)
 			} else {
 				// Rotate prefix: append r and discard first character
-				for i := 1; i < len(prefix) - 1; i += 1 {
+				for i := 1; i < len(prefix)-1; i += 1 {
 					prefix[i-1] = prefix[i]
 				}
-				prefix[depth - 1] = r
+				prefix[depth-1] = r
 			}
 		}
 	}
@@ -68,7 +65,7 @@ func (m *Markov) nextLetters(letters []rune) []rune {
 	if len(letters) < m.depth {
 		prefix = letters[:]
 	} else {
-		prefix = letters[len(letters) - m.depth : ]
+		prefix = letters[len(letters)-m.depth:]
 	}
 	return m.dict[string(prefix)]
 }
@@ -81,6 +78,3 @@ func (m *Markov) randomNextLetter(letters []rune) rune {
 	i := rand.Intn(len(next))
 	return next[i]
 }
-
-
-
