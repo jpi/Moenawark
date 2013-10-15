@@ -3,7 +3,6 @@ package namegen
 
 import (
 	"fmt"
-	"os"
 	"io"
 	"bufio"
 	"math/rand"
@@ -16,19 +15,13 @@ type Markov struct {
 }
 
 
-func NewMarkov(file string, depth int) (m *Markov, err error) {
+func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 	if depth < 2 {
 		err = fmt.Errorf("NewMarkov: depth must greater or equal to 2")
 		return
 	}
 
-	var f *os.File
-	f, err = os.Open(file)
-	if err != nil {
-		return
-	}
-
-	reader := bufio.NewReader(f)
+	reader := bufio.NewReader(file)
 	var line string
 	dict := make(map[string][]rune)
 	prefix := make([]rune, depth)
