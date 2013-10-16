@@ -40,7 +40,7 @@ func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 				prefix = append(prefix, r)
 			} else {
 				// Rotate prefix: append r and discard first character
-				for i := 1; i < len(prefix)-1; i += 1 {
+				for i := 1; i < len(prefix); i += 1 {
 					prefix[i-1] = prefix[i]
 				}
 				prefix[depth-1] = r
