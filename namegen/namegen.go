@@ -58,8 +58,17 @@ func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 
 func (m *Markov) Gen(n int) (name string) {
 	letters := make([]rune, n)
-	for i := 0; i < n; i += 1 {
-		letters[i] = m.randomNextLetter(letters)
+	for x := 0; x < 50; x += 1 {
+		for i := 0; i < n; i += 1 {
+			r := m.randomNextLetter(letters)
+			if r == 0 {
+				break
+			}
+			letters[i] = r
+		}
+		if m.isWordEnding(letters) {
+			break
+		}
 	}
 	return string(letters)
 }
@@ -72,6 +81,16 @@ func (m *Markov) nextLetters(letters []rune) []rune {
 		prefix = letters[len(letters)-m.depth:]
 	}
 	return m.dict[string(prefix)]
+}
+
+func (m *Markov) isWordEnding(letters []rune) bool {
+	next := m.nextLetters(letters)
+	for _, r := range next {
+		if r == '\n' {
+			return true
+		}
+	}
+	return false
 }
 
 func (m *Markov) randomNextLetter(letters []rune) rune {
