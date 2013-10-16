@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"os"
 )
 
 // Random name generator based on Markov chains.
@@ -19,19 +20,51 @@ type Markov struct {
 // NewMarkov creates a new name generator from a text file. Each line in the
 // text file should be a single word, the line-endings should be "\n", and the
 // file should be UTF-8 encoded.
-func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
+func NewMarkov(path string, depth int) (m *Markov, err error) {
 	if depth < 2 {
 		err = fmt.Errorf("NewMarkov: depth must greater or equal to 2")
 		return
 	}
 
+	reader, err := os.Open(path)
+	if err != nil {
+		return
+	}
+
+	dict, err := loadDict(reader, depth)
+	if err != nil {
+		return
+	}
+
+	m = &Markov{depth, dict}
+	return
+}
+
+// Gen returns a random name.
+func (m *Markov) Gen(n int) (name string) {
+	letters := make([]rune, n)
+	for x := 0; x < 50; x += 1 {
+		for i := 0; i < n; i += 1 {
+			r := m.randomNextLetter(letters)
+			if r == 0 {
+				break
+			}
+			letters[i] = r
+		}
+		if m.isWordEnding(letters) {
+			break
+		}
+	}
+	return string(letters)
+}
+
+func loadDict(file io.Reader, depth int) (map[string][]rune, error) {
 	reader := bufio.NewReader(file)
-	var line string
 	dict := make(map[string][]rune)
 	for {
-		line, err = reader.ReadString('\n')
+		line, err := reader.ReadString('\n')
 		if err != nil && err != io.EOF {
-			return
+			return dict, err
 		}
 		name := []rune(line)
 		prefix := make([]rune, 0)
@@ -59,26 +92,7 @@ func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 		}
 	}
 
-	m = &Markov{depth, dict}
-	return
-}
-
-// Gen returns a random name.
-func (m *Markov) Gen(n int) (name string) {
-	letters := make([]rune, n)
-	for x := 0; x < 50; x += 1 {
-		for i := 0; i < n; i += 1 {
-			r := m.randomNextLetter(letters)
-			if r == 0 {
-				break
-			}
-			letters[i] = r
-		}
-		if m.isWordEnding(letters) {
-			break
-		}
-	}
-	return string(letters)
+	return dict, nil
 }
 
 func (m *Markov) nextLetters(letters []rune) []rune {
