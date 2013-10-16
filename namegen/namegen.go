@@ -21,18 +21,18 @@ func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 	reader := bufio.NewReader(file)
 	var line string
 	dict := make(map[string][]rune)
-	prefix := make([]rune, depth)
 	for {
 		line, err = reader.ReadString('\n')
 		if err != nil && err != io.EOF {
 			return
 		}
 		name := []rune(line)
+		prefix := make([]rune, 0)
 		for _, r := range name {
 			// Append r to the list of possible characters following prefix
 			rest, ok := dict[string(prefix)]
 			if !ok {
-				rest = make([]rune, 1)
+				rest = make([]rune, 0)
 			}
 			rest = append(rest, r)
 			dict[string(prefix)] = rest
@@ -45,6 +45,10 @@ func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 				}
 				prefix[depth-1] = r
 			}
+		}
+		if err == io.EOF {
+			err = nil
+			break
 		}
 	}
 
