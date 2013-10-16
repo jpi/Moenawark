@@ -20,4 +20,8 @@ func TestNewMarkov(t *testing.T) {
 	if !reflect.DeepEqual(oo, m.dict["oo"]) {
 		t.Errorf("NewMarkov: dict[\"oo\"] = %v, want %v", m.dict["oo"], oo)
 	}
+	ba := []rune{'r', 'z'}
+	if !reflect.DeepEqual(ba, m.dict["ba"]) {
+		t.Errorf("NewMarkov: dict[\"ba\"] = %v, want %v", m.dict["ba"], ba)
+	}
 }
