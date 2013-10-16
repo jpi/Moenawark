@@ -1,3 +1,6 @@
+/*
+Package namegen implements a random name generator.
+*/
 package namegen
 
 import (
@@ -7,11 +10,15 @@ import (
 	"math/rand"
 )
 
+// Random name generator based on Markov chains.
 type Markov struct {
 	depth int
 	dict  map[string][]rune
 }
 
+// NewMarkov creates a new name generator from a text file. Each line in the
+// text file should be a single word, the line-endings should be "\n", and the
+// file should be UTF-8 encoded.
 func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 	if depth < 2 {
 		err = fmt.Errorf("NewMarkov: depth must greater or equal to 2")
@@ -56,6 +63,7 @@ func NewMarkov(file io.Reader, depth int) (m *Markov, err error) {
 	return
 }
 
+// Gen returns a random name.
 func (m *Markov) Gen(n int) (name string) {
 	letters := make([]rune, n)
 	for x := 0; x < 50; x += 1 {
